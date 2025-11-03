@@ -50,8 +50,8 @@ import { computed } from 'vue';
 import { gql } from '@apollo/client/core';
 import { useQuery } from '@vue/apollo-composable';
 
-import RoleBadge from '@/components/RoleBadge.vue';
-import { useAuthStore } from '@/stores/auth';
+import RoleBadge from '@/shared/components/RoleBadge.vue';
+import { useAuthStore } from '@/features/auth/stores/auth';
 
 const TEACHER_DASHBOARD_QUERY = gql`
   query TeacherDashboard {

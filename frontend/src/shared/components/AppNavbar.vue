@@ -43,7 +43,7 @@
 import { computed, inject, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@/features/auth/stores/auth';
 
 defineProps<{ title: string }>();
 defineEmits<{ (e: 'toggle-sidebar'): void }>();

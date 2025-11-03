@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@/features/auth/stores/auth';
 
 export type AppRouteMeta = {
   requiresAuth?: boolean;
@@ -13,18 +13,18 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'login',
-    component: () => import('@/views/LoginView.vue'),
+    component: () => import('@/features/auth/views/LoginView.vue'),
     meta: { guestOnly: true, title: 'Sign in' } satisfies AppRouteMeta
   },
   {
     path: '/profile',
     name: 'profile',
-    component: () => import('@/views/ProfileView.vue'),
+    component: () => import('@/features/auth/views/ProfileView.vue'),
     meta: { requiresAuth: true, title: 'Profile' } satisfies AppRouteMeta
   },
   {
     path: '/student',
-    component: () => import('@/layouts/StudentLayout.vue'),
+    component: () => import('@/shared/layouts/StudentLayout.vue'),
     meta: { requiresAuth: true, roles: ['student'], title: 'Student Portal' } satisfies AppRouteMeta,
     children: [
       {
@@ -34,47 +34,47 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'dashboard',
         name: 'student-dashboard',
-        component: () => import('@/views/StudentDashboardView.vue'),
+        component: () => import('@/features/dashboard/views/StudentDashboardView.vue'),
         meta: { title: 'Dashboard', requiresAuth: true, roles: ['student'] } satisfies AppRouteMeta
       },
       {
         path: 'courses/:id',
         name: 'student-course-detail',
-        component: () => import('@/views/CourseDetailView.vue'),
+        component: () => import('@/features/courses/views/CourseDetailView.vue'),
         props: true,
         meta: { requiresAuth: true, roles: ['student', 'teacher'] } satisfies AppRouteMeta
       },
       {
         path: 'assignments/:id',
         name: 'student-assignment-detail',
-        component: () => import('@/views/AssignmentDetailView.vue'),
+        component: () => import('@/features/assignments/views/AssignmentDetailView.vue'),
         props: true,
         meta: { requiresAuth: true, roles: ['student', 'teacher'] } satisfies AppRouteMeta
       },
       {
         path: 'notes',
         name: 'student-notes',
-        component: () => import('@/views/NotesView.vue'),
+        component: () => import('@/features/notes/views/NotesView.vue'),
         meta: { requiresAuth: true, roles: ['student'] } satisfies AppRouteMeta
       },
       {
         path: 'whiteboard/:sessionId',
         name: 'student-whiteboard',
-        component: () => import('@/views/WhiteboardView.vue'),
+        component: () => import('@/features/whiteboard/views/WhiteboardView.vue'),
         props: true,
         meta: { requiresAuth: true, roles: ['student', 'teacher'] } satisfies AppRouteMeta
       },
       {
         path: 'support',
         name: 'student-support',
-        component: () => import('@/views/SupportCenterView.vue'),
+        component: () => import('@/features/support/views/SupportCenterView.vue'),
         meta: { requiresAuth: true, roles: ['student'] } satisfies AppRouteMeta
       }
     ]
   },
   {
     path: '/teacher',
-    component: () => import('@/layouts/TeacherLayout.vue'),
+    component: () => import('@/shared/layouts/TeacherLayout.vue'),
     meta: { requiresAuth: true, roles: ['teacher', 'admin'], title: 'Teacher Portal' } satisfies AppRouteMeta,
     children: [
       {
@@ -84,39 +84,39 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'dashboard',
         name: 'teacher-dashboard',
-        component: () => import('@/views/TeacherDashboardView.vue'),
+        component: () => import('@/features/dashboard/views/TeacherDashboardView.vue'),
         meta: { requiresAuth: true, roles: ['teacher', 'admin'] } satisfies AppRouteMeta
       },
       {
         path: 'courses/:id/assignments',
         name: 'teacher-course-assignments',
-        component: () => import('@/views/TeacherAssignmentsView.vue'),
+        component: () => import('@/features/assignments/views/TeacherAssignmentsView.vue'),
         props: true,
         meta: { requiresAuth: true, roles: ['teacher', 'admin'] } satisfies AppRouteMeta
       },
       {
         path: 'assignments/:id/submissions',
         name: 'teacher-assignment-submissions',
-        component: () => import('@/views/TeacherSubmissionsView.vue'),
+        component: () => import('@/features/assignments/views/TeacherSubmissionsView.vue'),
         props: true,
         meta: { requiresAuth: true, roles: ['teacher', 'admin'] } satisfies AppRouteMeta
       },
       {
         path: 'notes',
         name: 'teacher-notes',
-        component: () => import('@/views/TeacherNotesView.vue'),
+        component: () => import('@/features/notes/views/TeacherNotesView.vue'),
         meta: { requiresAuth: true, roles: ['teacher', 'admin'] } satisfies AppRouteMeta
       },
       {
         path: 'whiteboard',
         name: 'teacher-whiteboard',
-        component: () => import('@/views/TeacherWhiteboardView.vue'),
+        component: () => import('@/features/whiteboard/views/TeacherWhiteboardView.vue'),
         meta: { requiresAuth: true, roles: ['teacher', 'admin'] } satisfies AppRouteMeta
       },
       {
         path: 'support',
         name: 'teacher-support',
-        component: () => import('@/views/SupportCenterView.vue'),
+        component: () => import('@/features/support/views/SupportCenterView.vue'),
         meta: { requiresAuth: true, roles: ['teacher', 'admin'] } satisfies AppRouteMeta
       }
     ]

@@ -3,8 +3,8 @@ import { createPinia } from 'pinia';
 import { DefaultApolloClient } from '@vue/apollo-composable';
 
 import App from './App.vue';
-import router from './router';
-import apolloClient from './api/apollo';
+import router from './shared/router';
+import apolloClient from './shared/api/apollo';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';

@@ -2,8 +2,8 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { gql } from '@apollo/client/core';
 
-import apolloClient from '@/api/apollo';
-import http from '@/api/http';
+import apolloClient from '@/shared/api/apollo';
+import http from '@/shared/api/http';
 
 export interface UserProfile {
   id: string;

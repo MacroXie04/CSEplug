@@ -110,8 +110,8 @@ import { gql } from '@apollo/client/core';
 import { useMutation, useQuery } from '@vue/apollo-composable';
 import { useRoute } from 'vue-router';
 
-import AssignmentCard from '@/components/AssignmentCard.vue';
-import { useAuthStore } from '@/stores/auth';
+import AssignmentCard from '@/features/assignments/components/AssignmentCard.vue';
+import { useAuthStore } from '@/features/auth/stores/auth';
 
 const COURSE_DETAIL_QUERY = gql`
   query CourseDetail($id: ID!) {

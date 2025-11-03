@@ -94,7 +94,7 @@ import MarkdownIt from 'markdown-it';
 import DOMPurify from 'dompurify';
 import { useRoute } from 'vue-router';
 
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@/features/auth/stores/auth';
 
 const ASSIGNMENT_DETAIL_QUERY = gql`
   query AssignmentDetail($id: ID!) {

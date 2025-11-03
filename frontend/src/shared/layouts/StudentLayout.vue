@@ -13,8 +13,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import AppNavbar from '@/components/AppNavbar.vue';
-import AppSidebar from '@/components/AppSidebar.vue';
+import AppNavbar from '@/shared/components/AppNavbar.vue';
+import AppSidebar from '@/shared/components/AppSidebar.vue';
 
 const sidebarCollapsed = ref(false);
 

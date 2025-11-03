@@ -45,9 +45,9 @@
 import { ref, watchEffect } from 'vue';
 import { gql } from '@apollo/client/core';
 
-import RoleBadge from '@/components/RoleBadge.vue';
-import apolloClient from '@/api/apollo';
-import { useAuthStore } from '@/stores/auth';
+import RoleBadge from '@/shared/components/RoleBadge.vue';
+import apolloClient from '@/shared/api/apollo';
+import { useAuthStore } from '@/features/auth/stores/auth';
 
 const UPDATE_PROFILE_MUTATION = gql`
   mutation UpdateProfile($firstName: String, $lastName: String) {

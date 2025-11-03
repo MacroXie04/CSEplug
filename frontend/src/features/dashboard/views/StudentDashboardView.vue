@@ -84,9 +84,9 @@ import { computed } from 'vue';
 import { gql } from '@apollo/client/core';
 import { useQuery } from '@vue/apollo-composable';
 
-import CourseCard from '@/components/CourseCard.vue';
-import RoleBadge from '@/components/RoleBadge.vue';
-import { useAuthStore } from '@/stores/auth';
+import CourseCard from '@/features/courses/components/CourseCard.vue';
+import RoleBadge from '@/shared/components/RoleBadge.vue';
+import { useAuthStore } from '@/features/auth/stores/auth';
 
 const DASHBOARD_QUERY = gql`
   query StudentDashboard {
