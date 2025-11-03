@@ -64,3 +64,11 @@ class MultipleChoiceOption(models.Model):
 
     def __str__(self) -> str:
         return self.option_text[:80]
+
+
+__all__ = [
+    "FreeResponseQuestion",
+    "MultipleChoiceQuestion",
+    "MultipleChoiceOption",
+]
+

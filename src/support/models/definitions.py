@@ -73,3 +73,6 @@ class ChatMessage(models.Model):
         target = self.ticket.subject if self.ticket else (self.course.title if self.course else "General")
         return f"{target}: {self.author.username}"
 
+
+__all__ = ["SupportTicket", "ChatMessage"]
+

@@ -1,4 +1,4 @@
-"""User models package exports."""
+"""Whiteboard models package exports."""
 
 from .definitions import *  # noqa: F401,F403
 

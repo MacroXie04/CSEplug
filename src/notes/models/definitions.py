@@ -55,3 +55,6 @@ class NotesShape(models.Model):
     def __str__(self) -> str:
         return f"Shape v{self.version} for page {self.page_id}"
 
+
+__all__ = ["NotesPage", "NotesShape"]
+

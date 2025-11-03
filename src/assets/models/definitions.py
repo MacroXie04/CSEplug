@@ -52,3 +52,7 @@ class Asset(models.Model):
             raise ValidationError("Asset must belong to either a course or a book.")
         if self.course and self.book:
             raise ValidationError("Asset cannot be attached to both course and book simultaneously.")
+
+
+__all__ = ["Asset"]
+

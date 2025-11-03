@@ -35,3 +35,7 @@ class Submission(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user.email} → {self.assignment_question}"
+
+
+__all__ = ["Submission"]
+

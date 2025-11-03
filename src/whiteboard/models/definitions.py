@@ -60,3 +60,6 @@ class WhiteboardStroke(models.Model):
     def __str__(self) -> str:
         return f"Stroke {self.id} on {self.session_id}"
 
+
+__all__ = ["WhiteboardSession", "WhiteboardStroke"]
+

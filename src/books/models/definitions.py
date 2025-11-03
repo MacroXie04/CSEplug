@@ -48,3 +48,7 @@ class BookChapter(models.Model):
 
     def __str__(self) -> str:
         return f"{self.book.title}: {self.title}"
+
+
+__all__ = ["Book", "BookChapter"]
+

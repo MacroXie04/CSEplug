@@ -50,17 +50,15 @@ class User(AbstractUser):
         verbose_name = "User"
         verbose_name_plural = "Users"
 
+
 class UserProfile(models.Model):
     """Stores additional profile information for users."""
 
-    # foreign key to the custom User model
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
         related_name="profile",
     )
-
-
 
     class Meta:
         verbose_name = "User Profile"
@@ -68,3 +66,7 @@ class UserProfile(models.Model):
 
     def __str__(self) -> str:
         return f"Profile of {self.user.email}"
+
+
+__all__ = ["User", "UserManager", "UserProfile"]
+

@@ -94,3 +94,10 @@ class AssignmentExtension(models.Model):
     def __str__(self) -> str:
         return f"{self.assignment.title} • {self.user.email}"
 
+
+__all__ = [
+    "Assignment",
+    "AssignmentQuestion",
+    "AssignmentExtension",
+]
+

@@ -32,3 +32,7 @@ class SubmissionOutcome(models.Model):
 
     def __str__(self) -> str:
         return f"Outcome for {self.submission}"
+
+
+__all__ = ["SubmissionOutcome"]
+

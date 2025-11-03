@@ -54,3 +54,6 @@ class CourseMembership(models.Model):
     def __str__(self) -> str:
         return f"{self.user.email} → {self.course.title} ({self.get_role_display()})"
 
+
+__all__ = ["Course", "CourseMembership"]
+

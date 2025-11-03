@@ -23,3 +23,7 @@ class Deck(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+
+__all__ = ["Deck"]
+
