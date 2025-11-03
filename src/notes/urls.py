@@ -2,7 +2,12 @@
 
 from django.urls import path
 
+from .views import LectureNoteUploadView
+
 app_name = "notes"
 
-urlpatterns: list = []
+
+urlpatterns = [
+    path("upload/", LectureNoteUploadView.as_view(), name="upload"),
+]
 
