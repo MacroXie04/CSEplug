@@ -1,28 +1,22 @@
-"""API views for lecture notes."""
+"""API views for notes pages (temporary REST support)."""
 
 from rest_framework import permissions, status
-from rest_framework.exceptions import PermissionDenied, ValidationError
-from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from courses.models import Course
+from courses.models import Course, CourseMembership
 
-from .models import LectureNote
-from .serializers import LectureNoteSerializer
+from .models import NotesPage
+from .serializers import NotesPageSerializer
 
 
-class LectureNoteUploadView(APIView):
-    """Handle lecture note uploads via multipart requests."""
+class NotesPageCreateView(APIView):
+    """Create a notes page entry via REST (GraphQL preferred)."""
 
     permission_classes = (permissions.IsAuthenticated,)
-    parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request, *args, **kwargs):  # noqa: D401
-        user = request.user
-        if not (getattr(user, "is_teacher", False) or getattr(user, "is_administrator", False) or user.is_superuser):
-            raise PermissionDenied("Only teachers can upload lecture notes.")
-
         course_id = request.data.get("course")
         if not course_id:
             raise ValidationError({"course": "Course is required."})
@@ -32,12 +26,12 @@ class LectureNoteUploadView(APIView):
         except Course.DoesNotExist as exc:
             raise ValidationError({"course": "Course not found."}) from exc
 
-        if course.instructor_id != user.id and not (getattr(user, "is_administrator", False) or user.is_superuser):
-            raise PermissionDenied("You do not teach this course.")
+        membership_exists = CourseMembership.objects.filter(course=course, user=request.user).exists()
+        if not membership_exists and not request.user.is_superuser:
+            raise ValidationError("You are not a member of this course.")
 
-        serializer = LectureNoteSerializer(data=request.data)
+        serializer = NotesPageSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        note: LectureNote = serializer.save(author=user, course=course)
-        output = LectureNoteSerializer(instance=note, context={"request": request})
-        return Response(output.data, status=status.HTTP_201_CREATED)
+        notes_page: NotesPage = serializer.save(author=request.user)
+        return Response(NotesPageSerializer(notes_page).data, status=status.HTTP_201_CREATED)
 

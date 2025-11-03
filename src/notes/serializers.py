@@ -1,36 +1,33 @@
-"""Serializers for lecture notes."""
+"""Serializers for collaborative notes."""
 
 from rest_framework import serializers
 
-from .models import LectureNote
+from .models import NotesPage, NotesShape
 
 
-class LectureNoteSerializer(serializers.ModelSerializer):
-    course_title = serializers.CharField(source="course.title", read_only=True)
-    author_username = serializers.CharField(source="author.username", read_only=True)
+class NotesShapeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NotesShape
+        fields = ("id", "version", "data", "created_at")
+        read_only_fields = ("id", "created_at")
+
+
+class NotesPageSerializer(serializers.ModelSerializer):
+    shapes = NotesShapeSerializer(many=True, read_only=True)
 
     class Meta:
-        model = LectureNote
+        model = NotesPage
         fields = (
             "id",
             "course",
-            "course_title",
             "author",
-            "author_username",
-            "title",
-            "description",
-            "file",
-            "is_published",
-            "published_at",
+            "order_index",
+            "data",
+            "thumbnail_src",
+            "thumbnail_dark_src",
+            "created_at",
             "updated_at",
+            "shapes",
         )
-        read_only_fields = (
-            "id",
-            "author",
-            "author_username",
-            "course_title",
-            "is_published",
-            "published_at",
-            "updated_at",
-        )
+        read_only_fields = ("id", "author", "created_at", "updated_at", "shapes")
 

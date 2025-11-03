@@ -9,14 +9,14 @@ from .models import User
 
 @admin.register(User)
 class UserAdmin(DjangoUserAdmin):
-    list_display = ("username", "email", "role", "is_staff", "is_active")
-    list_filter = ("role", "is_staff", "is_superuser", "is_active")
-    search_fields = ("username", "email", "first_name", "last_name")
-    ordering = ("username",)
+    list_display = ("email", "first_name", "last_name", "is_staff", "is_active")
+    list_filter = ("is_staff", "is_superuser", "is_active")
+    search_fields = ("email", "first_name", "last_name")
+    ordering = ("email",)
 
     fieldsets = (
-        (None, {"fields": ("username", "password")}),
-        (_("Personal info"), {"fields": ("first_name", "last_name", "email", "role")}),
+        (None, {"fields": ("email", "password")}),
+        (_("Personal info"), {"fields": ("first_name", "last_name")}),
         (
             _("Permissions"),
             {
@@ -37,7 +37,7 @@ class UserAdmin(DjangoUserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("username", "email", "role", "password1", "password2"),
+                "fields": ("email", "password1", "password2"),
             },
         ),
     )

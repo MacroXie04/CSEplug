@@ -70,6 +70,6 @@ class ChatMessage(models.Model):
         verbose_name_plural = "Chat Messages"
 
     def __str__(self) -> str:
-        target = self.ticket.subject if self.ticket else (self.course.code if self.course else "General")
+        target = self.ticket.subject if self.ticket else (self.course.title if self.course else "General")
         return f"{target}: {self.author.username}"
 

@@ -2,19 +2,19 @@
 
 from django.contrib import admin
 
-from .models import WhiteboardSession, WhiteboardEvent
+from .models import WhiteboardSession, WhiteboardStroke
 
 
 @admin.register(WhiteboardSession)
 class WhiteboardSessionAdmin(admin.ModelAdmin):
-    list_display = ("title", "course", "created_by", "is_active", "created_at")
+    list_display = ("title", "course", "instructor", "is_active", "created_at")
     list_filter = ("course", "is_active", "created_at")
-    search_fields = ("title", "course__code", "created_by__username")
+    search_fields = ("title", "course__title", "instructor__email")
 
 
-@admin.register(WhiteboardEvent)
-class WhiteboardEventAdmin(admin.ModelAdmin):
-    list_display = ("session", "sender", "created_at")
-    list_filter = ("session__course", "created_at")
-    search_fields = ("session__title", "sender__username")
+@admin.register(WhiteboardStroke)
+class WhiteboardStrokeAdmin(admin.ModelAdmin):
+    list_display = ("session", "user", "ts")
+    list_filter = ("session__course",)
+    search_fields = ("session__title", "user__email")
 

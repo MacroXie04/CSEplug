@@ -15,15 +15,13 @@ class WhiteboardSession(models.Model):
         on_delete=models.CASCADE,
         related_name="whiteboard_sessions",
     )
-    title = models.CharField(max_length=255)
-    created_by = models.ForeignKey(
+    instructor = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="whiteboard_sessions_created",
+        related_name="whiteboard_sessions",
     )
+    title = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
-    strokes = models.JSONField(default=list, blank=True)
-    snapshot = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -33,30 +31,32 @@ class WhiteboardSession(models.Model):
         verbose_name_plural = "Whiteboard Sessions"
 
     def __str__(self) -> str:
-        return f"{self.course.code}: {self.title}"
+        return f"{self.course.title}: {self.title}"
 
 
-class WhiteboardEvent(models.Model):
-    """History of events that occurred within a whiteboard session."""
+class WhiteboardStroke(models.Model):
+    """Individual stroke data captured on the whiteboard."""
 
     session = models.ForeignKey(
         WhiteboardSession,
         on_delete=models.CASCADE,
-        related_name="events",
+        related_name="strokes",
     )
-    sender = models.ForeignKey(
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="whiteboard_events",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="whiteboard_strokes",
     )
-    payload = models.JSONField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    data = models.JSONField(default=dict, blank=True)
+    ts = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ("created_at",)
-        verbose_name = "Whiteboard Event"
-        verbose_name_plural = "Whiteboard Events"
+        ordering = ("session", "ts")
+        verbose_name = "Whiteboard Stroke"
+        verbose_name_plural = "Whiteboard Strokes"
 
     def __str__(self) -> str:
-        return f"Event {self.id} @ {self.session_id}"
+        return f"Stroke {self.id} on {self.session_id}"
 
