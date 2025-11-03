@@ -1,3 +1,41 @@
+/**
+ * Authentication Store
+ * 
+ * Manages user authentication state and profile information.
+ * 
+ * Features:
+ * - Login/logout functionality
+ * - User profile management
+ * - Role-based access control
+ * - JWT token handling via HTTP-only cookies
+ * 
+ * GraphQL Operations:
+ * - Query: me - Fetch current user profile
+ * - Query: userCoursesConnection - Fetch user's course memberships to determine role
+ * - Mutation: login - Authenticate user (handled via REST API)
+ * - Mutation: logout - Clear session (handled via REST API)
+ * 
+ * Usage:
+ * ```typescript
+ * import { useAuthStore } from '@/features/auth/stores/auth';
+ * 
+ * const auth = useAuthStore();
+ * 
+ * // Check if user is authenticated
+ * if (auth.isAuthenticated) {
+ *   console.log('User:', auth.currentUser);
+ *   console.log('Role:', auth.role);
+ * }
+ * 
+ * // Login
+ * await auth.login('user@example.com', 'password');
+ * 
+ * // Logout
+ * await auth.logout();
+ * ```
+ * 
+ * @see {@link /docs/GRAPHQL_EXAMPLES.md#authentication} For usage examples
+ */
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { gql } from '@apollo/client/core';
@@ -12,6 +50,7 @@ export interface UserProfile {
   lastName: string;
 }
 
+// GraphQL query to fetch current user's profile
 const USER_PROFILE_QUERY = gql`
   query UserProfile {
     me {

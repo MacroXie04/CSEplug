@@ -18,6 +18,7 @@ from questions.models import (
     MultipleChoiceQuestion,
 )
 from submissions.models import Submission
+from support.models import SupportTicket, ChatMessage
 from whiteboard.models import WhiteboardSession, WhiteboardStroke
 
 from .permissions import get_user_or_error, check_course_membership
@@ -208,6 +209,18 @@ class WhiteboardStrokeType(DjangoObjectType):
         fields = ("id", "session", "user", "data", "ts")
 
 
+class SupportTicketType(DjangoObjectType):
+    class Meta:
+        model = SupportTicket
+        fields = ("id", "requester", "course", "subject", "description", "status", "created_at", "updated_at", "messages")
+
+
+class ChatMessageType(DjangoObjectType):
+    class Meta:
+        model = ChatMessage
+        fields = ("id", "ticket", "course", "author", "content", "created_at")
+
+
 class Query(graphene.ObjectType):
     """Root GraphQL query."""
 
@@ -251,6 +264,20 @@ class Query(graphene.ObjectType):
     # Decks
     decks_connection = graphene.List(DeckType, course_id=graphene.ID())
     deck = graphene.Field(DeckType, id=graphene.ID(required=True))
+
+    # Whiteboard
+    whiteboard_sessions = graphene.List(WhiteboardSessionType, course_id=graphene.ID())
+    whiteboard_session = graphene.Field(WhiteboardSessionType, id=graphene.ID(required=True))
+    whiteboard_strokes = graphene.List(WhiteboardStrokeType, session_id=graphene.ID(required=True))
+
+    # Support
+    support_tickets = graphene.List(SupportTicketType, course_id=graphene.ID())
+    support_ticket = graphene.Field(SupportTicketType, id=graphene.ID(required=True))
+    course_chat_messages = graphene.List(ChatMessageType, course_id=graphene.ID(required=True))
+
+    # Assignment Extensions
+    assignment_extensions = graphene.List(AssignmentExtensionType, assignment_id=graphene.ID(required=True))
+    user_assignment_extension = graphene.Field(AssignmentExtensionType, assignment_id=graphene.ID(required=True), user_id=graphene.ID())
 
     def resolve_ping(self, info, **kwargs):  # noqa: D401
         return "pong"
@@ -428,6 +455,101 @@ class Query(graphene.ObjectType):
         check_course_membership(user, deck.course)
         return deck
 
+    def resolve_whiteboard_sessions(self, info, course_id=None, **kwargs):
+        user = get_user_or_error(info)
+        qs = WhiteboardSession.objects.select_related("course", "instructor")
+        if course_id:
+            qs = qs.filter(course_id=course_id)
+            try:
+                course = Course.objects.get(pk=course_id)
+            except Course.DoesNotExist:
+                raise graphene.GraphQLError("Course not found.")
+            check_course_membership(user, course)
+        return qs.order_by("-created_at")
+
+    def resolve_whiteboard_session(self, info, id, **kwargs):
+        user = get_user_or_error(info)
+        try:
+            session = WhiteboardSession.objects.select_related("course", "instructor").get(pk=id)
+        except WhiteboardSession.DoesNotExist:
+            raise graphene.GraphQLError("Whiteboard session not found.")
+        check_course_membership(user, session.course)
+        return session
+
+    def resolve_whiteboard_strokes(self, info, session_id, **kwargs):
+        user = get_user_or_error(info)
+        try:
+            session = WhiteboardSession.objects.select_related("course").get(pk=session_id)
+        except WhiteboardSession.DoesNotExist:
+            raise graphene.GraphQLError("Whiteboard session not found.")
+        check_course_membership(user, session.course)
+        return WhiteboardStroke.objects.filter(session=session).select_related("user").order_by("ts")
+
+    def resolve_support_tickets(self, info, course_id=None, **kwargs):
+        user = get_user_or_error(info)
+        qs = SupportTicket.objects.select_related("requester", "course").prefetch_related("messages")
+        if course_id:
+            qs = qs.filter(course_id=course_id)
+            try:
+                course = Course.objects.get(pk=course_id)
+            except Course.DoesNotExist:
+                raise graphene.GraphQLError("Course not found.")
+            check_course_membership(user, course)
+        else:
+            # Return only user's own tickets if no course filter
+            qs = qs.filter(requester=user)
+        return qs.order_by("-created_at")
+
+    def resolve_support_ticket(self, info, id, **kwargs):
+        user = get_user_or_error(info)
+        try:
+            ticket = SupportTicket.objects.select_related("requester", "course").prefetch_related("messages").get(pk=id)
+        except SupportTicket.DoesNotExist:
+            raise graphene.GraphQLError("Support ticket not found.")
+        # Check if user is the requester or a course member (if ticket has a course)
+        if ticket.requester != user:
+            if ticket.course:
+                check_course_membership(user, ticket.course)
+            elif not user.is_superuser:
+                raise graphene.GraphQLError("You don't have permission to view this ticket.")
+        return ticket
+
+    def resolve_course_chat_messages(self, info, course_id, **kwargs):
+        user = get_user_or_error(info)
+        try:
+            course = Course.objects.get(pk=course_id)
+        except Course.DoesNotExist:
+            raise graphene.GraphQLError("Course not found.")
+        check_course_membership(user, course)
+        return ChatMessage.objects.filter(course=course, ticket__isnull=True).select_related("author").order_by("created_at")
+
+    def resolve_assignment_extensions(self, info, assignment_id, **kwargs):
+        user = get_user_or_error(info)
+        try:
+            assignment = Assignment.objects.select_related("course").get(pk=assignment_id)
+        except Assignment.DoesNotExist:
+            raise graphene.GraphQLError("Assignment not found.")
+        check_course_membership(user, assignment.course, [CourseMembership.Roles.INSTRUCTOR, CourseMembership.Roles.TEACHING_ASSISTANT])
+        return AssignmentExtension.objects.filter(assignment=assignment).select_related("user")
+
+    def resolve_user_assignment_extension(self, info, assignment_id, user_id=None, **kwargs):
+        user = get_user_or_error(info)
+        try:
+            assignment = Assignment.objects.select_related("course").get(pk=assignment_id)
+        except Assignment.DoesNotExist:
+            raise graphene.GraphQLError("Assignment not found.")
+        check_course_membership(user, assignment.course)
+        
+        # If user_id provided, get extension for that user (instructors only)
+        if user_id:
+            check_course_membership(user, assignment.course, [CourseMembership.Roles.INSTRUCTOR, CourseMembership.Roles.TEACHING_ASSISTANT])
+            target_user_id = user_id
+        else:
+            # Otherwise get extension for current user
+            target_user_id = user.id
+        
+        return AssignmentExtension.objects.filter(assignment=assignment, user_id=target_user_id).select_related("user").first()
+
 
 class Mutation(graphene.ObjectType):
     """Root GraphQL mutations."""
@@ -436,14 +558,24 @@ class Mutation(graphene.ObjectType):
     from .mutations import (
         AssignmentCreateMutation,
         AssignmentDeleteMutation,
+        AssignmentExtensionCreateMutation,
         AssignmentQuestionFRCreateMutation,
         AssignmentQuestionMCCreateMutation,
         AssignmentUpdateMutation,
+        AssetCreateMutation,
+        AssetDeleteMutation,
         BookChapterCreateMutation,
         BookCreateMutation,
+        ChatMessageCreateMutation,
+        CourseMembershipAddMutation,
+        CourseMembershipRemoveMutation,
+        CourseMembershipUpdateRoleMutation,
         CourseCreateMutation,
         CourseDeleteMutation,
         CourseUpdateMutation,
+        DeckCreateMutation,
+        DeckDeleteMutation,
+        DeckUpdateMutation,
         FRQuestionCreateMutation,
         LoginMutation,
         LogoutMutation,
@@ -454,7 +586,13 @@ class Mutation(graphene.ObjectType):
         RefreshMutation,
         SubmissionCreateMutation,
         SubmissionOutcomeUpdateMutation,
+        SupportTicketCreateMutation,
+        SupportTicketUpdateMutation,
         UpdateProfileMutation,
+        WhiteboardSessionCreateMutation,
+        WhiteboardSessionDeleteMutation,
+        WhiteboardSessionUpdateMutation,
+        WhiteboardStrokeCreateMutation,
     )
 
     # Auth
@@ -491,6 +629,34 @@ class Mutation(graphene.ObjectType):
     # Notes
     notes_page_create = NotesPageCreateMutation.Field()
     notes_page_delete = NotesPageDeleteMutation.Field()
+
+    # Support
+    support_ticket_create = SupportTicketCreateMutation.Field()
+    support_ticket_update = SupportTicketUpdateMutation.Field()
+    chat_message_create = ChatMessageCreateMutation.Field()
+
+    # Whiteboard
+    whiteboard_session_create = WhiteboardSessionCreateMutation.Field()
+    whiteboard_session_update = WhiteboardSessionUpdateMutation.Field()
+    whiteboard_session_delete = WhiteboardSessionDeleteMutation.Field()
+    whiteboard_stroke_create = WhiteboardStrokeCreateMutation.Field()
+
+    # Course membership
+    course_membership_add = CourseMembershipAddMutation.Field()
+    course_membership_remove = CourseMembershipRemoveMutation.Field()
+    course_membership_update_role = CourseMembershipUpdateRoleMutation.Field()
+
+    # Assignment extensions
+    assignment_extension_create = AssignmentExtensionCreateMutation.Field()
+
+    # Assets
+    asset_create = AssetCreateMutation.Field()
+    asset_delete = AssetDeleteMutation.Field()
+
+    # Decks
+    deck_create = DeckCreateMutation.Field()
+    deck_update = DeckUpdateMutation.Field()
+    deck_delete = DeckDeleteMutation.Field()
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

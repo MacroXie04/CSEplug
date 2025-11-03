@@ -80,6 +80,41 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * StudentDashboardView Component
+ * 
+ * Main dashboard for students showing:
+ * - Enrolled courses
+ * - Upcoming assignments
+ * - Recent grades
+ * 
+ * GraphQL Usage:
+ * - Query: userCoursesConnection - Fetches all courses user is enrolled in
+ * - Query: me - Fetches current user profile
+ * 
+ * Example Query:
+ * ```graphql
+ * query StudentDashboard {
+ *   userCoursesConnection {
+ *     id
+ *     role
+ *     course {
+ *       id
+ *       title
+ *       description
+ *     }
+ *   }
+ *   me {
+ *     id
+ *     email
+ *     firstName
+ *     lastName
+ *   }
+ * }
+ * ```
+ * 
+ * @see {@link /docs/GRAPHQL_EXAMPLES.md#list-user-courses} For usage examples
+ */
 import { computed } from 'vue';
 import { gql } from '@apollo/client/core';
 import { useQuery } from '@vue/apollo-composable';
@@ -88,6 +123,7 @@ import CourseCard from '@/features/courses/components/CourseCard.vue';
 import RoleBadge from '@/shared/components/RoleBadge.vue';
 import { useAuthStore } from '@/features/auth/stores/auth';
 
+// GraphQL query to fetch user's courses and profile
 const DASHBOARD_QUERY = gql`
   query StudentDashboard {
     userCoursesConnection {
@@ -97,6 +133,23 @@ const DASHBOARD_QUERY = gql`
         id
         title
         description
+      }
+    }
+    me {
+      id
+      email
+      firstName
+      lastName
+    }
+  }
+`;
+
+const UPCOMING_ASSIGNMENTS_QUERY = gql`
+  query UpcomingAssignments {
+    userCoursesConnection {
+      course {
+        id
+        title
       }
     }
   }
@@ -110,12 +163,15 @@ const courses = computed(() =>
     id: membership.course.id,
     title: membership.course.title,
     description: membership.course.description,
-    instructor: null,
-    assignmentsCount: 0
+    role: membership.role,
+    assignmentsCount: 0 // TODO: Add assignments count aggregation
   }))
 );
 
+// TODO: Implement proper upcoming assignments query with actual assignment data
 const assignments = computed(() => []);
+
+// TODO: Implement proper grades query with submission outcomes
 const grades = computed(() => []);
 
 function formatDate(date: string | null | undefined) {
