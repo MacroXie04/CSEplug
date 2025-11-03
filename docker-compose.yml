@@ -14,16 +14,29 @@ services:
     depends_on:
       - redis
 
-  frontend:
-    build: ./frontend
+  frontend-student:
+    build: ./frontend/app
     command: npm run dev -- --host
     working_dir: /app
     volumes:
-      - ./frontend:/app
+      - ./frontend/app:/app
     env_file:
       - .env
     ports:
       - "5173:5173"
+    depends_on:
+      - backend
+
+  frontend-teacher:
+    build: ./frontend/admin
+    command: npm run dev -- --host
+    working_dir: /app
+    volumes:
+      - ./frontend/admin:/app
+    env_file:
+      - .env
+    ports:
+      - "5174:5174"
     depends_on:
       - backend
 
@@ -35,7 +48,8 @@ services:
       - "80:80"
     depends_on:
       - backend
-      - frontend
+      - frontend-student
+      - frontend-teacher
 
   redis:
     image: redis:7-alpine

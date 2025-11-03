@@ -8,8 +8,8 @@
 
           <form @submit.prevent="handleUpdate" class="d-flex flex-column gap-3">
             <div>
-              <label class="form-label">Username</label>
-              <input type="text" class="form-control" :value="auth.currentUser?.username" disabled />
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" :value="auth.currentUser?.email" disabled />
             </div>
 
             <div class="row">
@@ -23,13 +23,8 @@
               </div>
             </div>
 
-            <div>
-              <label class="form-label">Email</label>
-              <input type="email" class="form-control" :value="auth.currentUser?.email" disabled />
-            </div>
-
             <div class="d-flex align-items-center gap-3">
-              <RoleBadge v-if="auth.currentUser" :role="auth.currentUser.role" />
+              <RoleBadge v-if="auth.role" :role="auth.role" />
             </div>
 
             <div class="d-flex gap-2">

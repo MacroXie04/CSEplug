@@ -7,8 +7,8 @@
 
         <form @submit.prevent="handleSubmit" class="d-flex flex-column gap-3">
           <div>
-            <label class="form-label">Username</label>
-            <input v-model="username" type="text" class="form-control" required autocomplete="username" />
+            <label class="form-label">Email</label>
+            <input v-model="email" type="email" class="form-control" required autocomplete="email" />
           </div>
           <div>
             <label class="form-label">Password</label>
@@ -47,7 +47,7 @@ const auth = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 
-const username = ref('');
+const email = ref('');
 const password = ref('');
 const showPassword = ref(false);
 const submitting = ref(false);
@@ -59,14 +59,14 @@ async function handleSubmit() {
   submitting.value = true;
   errorMessage.value = '';
   try {
-    await auth.login(username.value, password.value);
+    await auth.login(email.value, password.value);
     if (auth.role === 'teacher' || auth.role === 'admin') {
       await router.push(redirectUrl.value || { name: 'teacher-dashboard' });
     } else {
       await router.push(redirectUrl.value || { name: 'student-dashboard' });
     }
   } catch (error: any) {
-    errorMessage.value = error?.response?.data?.detail || 'Invalid username or password.';
+    errorMessage.value = error?.response?.data?.detail || 'Invalid email or password.';
   } finally {
     submitting.value = false;
   }

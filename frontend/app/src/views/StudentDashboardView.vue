@@ -3,9 +3,9 @@
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center">
         <h3 class="fw-semibold">Dashboard</h3>
-        <RoleBadge v-if="auth.currentUser" :role="auth.currentUser.role" />
+        <RoleBadge v-if="auth.role" :role="auth.role" />
       </div>
-      <p class="text-muted">Here’s what’s happening across your courses.</p>
+      <p class="text-muted">Here's what's happening across your courses.</p>
     </div>
 
     <div class="col-xl-8">
@@ -90,32 +90,13 @@ import { useAuthStore } from '@/stores/auth';
 
 const DASHBOARD_QUERY = gql`
   query StudentDashboard {
-    courses(activeOnly: true) {
+    userCoursesConnection {
       id
-      code
-      title
-      description
-      instructor {
-        username
-        firstName
-      }
-      assignments {
+      role
+      course {
         id
-      }
-    }
-    assignments(upcomingOnly: true) {
-      id
-      title
-      dueAt
-      instructionsPreview
-    }
-    grades {
-      id
-      score
-      submission {
-        assignment {
-          title
-        }
+        title
+        description
       }
     }
   }
@@ -125,19 +106,17 @@ const auth = useAuthStore();
 const { result, loading } = useQuery(DASHBOARD_QUERY, undefined, { fetchPolicy: 'network-only' });
 
 const courses = computed(() =>
-  (result.value?.courses ?? []).map((course: any) => ({
-    ...course,
-    assignmentsCount: course.assignments?.length ?? 0
+  (result.value?.userCoursesConnection ?? []).map((membership: any) => ({
+    id: membership.course.id,
+    title: membership.course.title,
+    description: membership.course.description,
+    instructor: null,
+    assignmentsCount: 0
   }))
 );
 
-const assignments = computed(() => result.value?.assignments ?? []);
-const grades = computed(() =>
-  (result.value?.grades ?? []).map((grade: any) => ({
-    ...grade,
-    assignmentTitle: grade.submission?.assignment?.title ?? 'Assignment'
-  }))
-);
+const assignments = computed(() => []);
+const grades = computed(() => []);
 
 function formatDate(date: string | null | undefined) {
   if (!date) return 'Anytime';

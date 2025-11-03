@@ -18,7 +18,7 @@
             aria-expanded="false"
           >
             <i class="bi bi-person-circle me-1"></i>
-            {{ auth.fullName || auth.currentUser?.username }}
+            {{ auth.fullName }}
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
             <li>
