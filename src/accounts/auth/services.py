@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from ..models import User
 from .constants import (
     ACCESS_COOKIE_NAME,
     ACCESS_COOKIE_PATH,
@@ -15,7 +16,6 @@ from .constants import (
     REFRESH_COOKIE_NAME,
     REFRESH_COOKIE_PATH,
 )
-from .models import User
 
 
 SECURE_COOKIE = not settings.DEBUG

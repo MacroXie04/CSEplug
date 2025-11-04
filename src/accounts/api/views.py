@@ -1,4 +1,4 @@
-"""API views for authentication."""
+"""API views for authentication flows."""
 
 from django.contrib.auth import get_user_model
 from rest_framework import permissions, status
@@ -8,14 +8,15 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .constants import REFRESH_COOKIE_NAME
-from .serializers import LoginSerializer, RegisterSerializer, UserSerializer
-from .services import (
+from ..auth.constants import REFRESH_COOKIE_NAME
+from ..auth.services import (
     blacklist_refresh_token,
     clear_jwt_cookies,
     generate_tokens,
     set_jwt_cookies,
 )
+from .serializers import LoginSerializer, RegisterSerializer, UserSerializer
+
 
 User = get_user_model()
 
@@ -66,7 +67,6 @@ class RefreshTokenView(APIView):
         except User.DoesNotExist as exc:
             raise AuthenticationFailed("User not found.") from exc
 
-        # Blacklist the old refresh token when rotation is enabled
         blacklist_refresh_token(raw_refresh)
 
         new_access, new_refresh = generate_tokens(user)

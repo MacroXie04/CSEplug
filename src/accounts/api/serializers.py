@@ -1,10 +1,10 @@
-"""Serializers for the accounts app."""
+"""Serializers for the accounts API."""
 
 from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
-from .models import User
+from ..models import User
 
 
 class UserSerializer(serializers.ModelSerializer):

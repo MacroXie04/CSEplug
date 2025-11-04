@@ -1,4 +1,6 @@
-"""User models package exports."""
+"""Accounts app model exports."""
 
-from .definitions import *  # noqa: F401,F403
+from .user import User, UserManager, UserProfile
+
+__all__ = ["User", "UserManager", "UserProfile"]
 

@@ -9,11 +9,7 @@ from .authentication import CookieJWTAuthentication
 
 
 class JWTCookieMiddleware(MiddlewareMixin):
-    """Attach authenticated user to the request from JWT cookies.
-
-    This allows standard Django views (GraphQL, Channels HTTP handshake) to
-    benefit from the same JWT cookie authentication mechanism used by DRF.
-    """
+    """Attach authenticated user to the request from JWT cookies."""
 
     def __init__(self, get_response):
         super().__init__(get_response)

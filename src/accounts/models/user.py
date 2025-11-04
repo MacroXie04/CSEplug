@@ -1,30 +1,70 @@
+"""User models for CSE Plug."""
+
+from __future__ import annotations
+
+import uuid
+
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
-from django.contrib.auth.models import User
-import uuid
+
+
+class UserManager(BaseUserManager):
+    """Custom user manager that uses email as the unique identifier."""
+
+    use_in_migrations = True
+
+    def _create_user(self, email: str, password: str | None, **extra_fields):
+        if not email:
+            raise ValueError("The email address must be set.")
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, email: str, password: str | None = None, **extra_fields):
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+        return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, email: str, password: str, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Superuser must have is_staff=True.")
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser must have is_superuser=True.")
+
+        return self._create_user(email, password, **extra_fields)
+
+
+class User(AbstractUser):
+    """Application user model with email as the primary login field."""
+
+    username = None
+    email = models.EmailField("email address", unique=True)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS: list[str] = []
+
+    objects = UserManager()
+
+    class Meta:
+        verbose_name = "User"
+        verbose_name_plural = "Users"
 
 
 class UserProfile(models.Model):
-    """Extended profile data for Django users."""
-
-    # Link to the built-in User model
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-    # user uuid for external reference
-    user_uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    """Stores additional profile information for users."""
 
     GENDER_ORIENTATION_CHOICES = [
-        # Binary
         ("male", "Male"),
         ("female", "Female"),
-
-        # Transgender Identities
         ("transgender_male", "Transgender Male"),
         ("transgender_female", "Transgender Female"),
         ("trans_masculine", "Transmasculine"),
         ("trans_feminine", "Transfeminine"),
-
-        # Non-binary Spectrum
         ("non_binary", "Non-binary"),
         ("genderqueer", "Genderqueer"),
         ("genderfluid", "Genderfluid"),
@@ -45,8 +85,6 @@ class UserProfile(models.Model):
         ("maverique", "Maverique"),
         ("intergender", "Intergender"),
         ("intersex", "Intersex"),
-
-        # Cultural and Regional Terms
         ("hijra", "Hijra (South Asian)"),
         ("fa_afafine", "Fa'afafine (Samoa)"),
         ("fa_tama", "Fa’atama (Samoa)"),
@@ -55,27 +93,28 @@ class UserProfile(models.Model):
         ("waria", "Waria (Indonesia)"),
         ("muxhe", "Muxhe (Zapotec, Mexico)"),
         ("sworn_virgin", "Sworn Virgin (Balkan)"),
-
-        # Orientation/Gender-expression related identities
         ("butch", "Butch"),
         ("femme", "Femme"),
         ("androgynous", "Androgynous"),
         ("masculine_presenting", "Masculine-presenting"),
         ("feminine_presenting", "Feminine-presenting"),
-
-        # Fluid/Undefined/Other
         ("questioning", "Questioning"),
         ("other", "Other"),
         ("prefer_not_to_say", "Prefer not to say"),
     ]
 
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="profile",
+    )
+    user_uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     gender_orientation = models.CharField(
         max_length=100,
         choices=GENDER_ORIENTATION_CHOICES,
         null=True,
         blank=True,
     )
-    user_uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     user_profile_img = models.TextField(
         null=True,
         blank=True,
@@ -84,12 +123,14 @@ class UserProfile(models.Model):
         ),
         verbose_name="avatar (Base64)",
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "User Profile"
+        verbose_name_plural = "User Profiles"
 
     def __str__(self) -> str:
-        return f"Profile of {self.user.username}"
+        return f"Profile of {self.user.email}"
 
-def is_palindrome(word):
-    word = word.lower()
-    return word == word[::-1]
+
+__all__ = ["User", "UserManager", "UserProfile"]
+

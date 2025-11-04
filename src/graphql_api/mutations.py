@@ -6,13 +6,13 @@ import graphene
 from django.contrib.auth import authenticate, get_user_model
 from graphql import GraphQLError
 
-from accounts.services import (
+from accounts.auth.services import (
     blacklist_refresh_token,
     clear_jwt_cookies,
     generate_tokens,
     set_jwt_cookies,
 )
-from accounts.constants import REFRESH_COOKIE_NAME
+from accounts.auth.constants import REFRESH_COOKIE_NAME
 from assignments.models import Assignment, AssignmentExtension, AssignmentQuestion
 from books.models import Book, BookChapter
 from courses.models import Course, CourseMembership
