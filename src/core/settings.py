@@ -28,19 +28,11 @@ INSTALLED_APPS = [
     "corsheaders",
     "channels",
     "rest_framework_simplejwt.token_blacklist",
+    "common",
     "accounts",
     "courses",
-    "assets",
-    "books",
-    "decks",
-    "questions",
     "assignments",
-    "submissions",
-    "grading",
-    "notes",
     "whiteboard",
-    "support",
-    "graphql_api",
 ]
 
 

@@ -9,7 +9,7 @@ from .models import Course, CourseMembership
 class CourseAdmin(admin.ModelAdmin):
     list_display = ("title", "start_date", "end_date", "created_at")
     search_fields = ("title", "description")
-    list_filter = ("start_date", "end_date")
+    list_filter = ("start_date_utc", "end_date_utc")
 
 
 @admin.register(CourseMembership)
