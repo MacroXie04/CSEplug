@@ -7,6 +7,8 @@ import uuid
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
+from common.models import BaseModelWithPermissions, TimestampedModel
+
 
 class UserManager(BaseUserManager):
     """Custom user manager that uses email as the unique identifier."""
@@ -39,7 +41,7 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-class User(AbstractUser):
+class User(AbstractUser, BaseModelWithPermissions):
     """Application user model with email as the primary login field."""
 
     username = None
@@ -54,8 +56,23 @@ class User(AbstractUser):
         verbose_name = "User"
         verbose_name_plural = "Users"
 
+    def can_view(self, user) -> bool:
+        if not getattr(user, "is_authenticated", False):
+            return False
+        return user.is_staff or user.pk == self.pk
 
-class UserProfile(models.Model):
+    def can_edit(self, user) -> bool:
+        if not getattr(user, "is_authenticated", False):
+            return False
+        return user.is_staff or user.pk == self.pk
+
+    def can_delete(self, user) -> bool:
+        if not getattr(user, "is_authenticated", False):
+            return False
+        return user.is_staff and user.pk != self.pk
+
+
+class UserProfile(TimestampedModel):
     """Stores additional profile information for users."""
 
     GENDER_ORIENTATION_CHOICES = [
@@ -130,6 +147,21 @@ class UserProfile(models.Model):
 
     def __str__(self) -> str:
         return f"Profile of {self.user.email}"
+
+    def can_view(self, user) -> bool:
+        if not getattr(user, "is_authenticated", False):
+            return False
+        return user.is_staff or user.pk == self.user_id
+
+    def can_edit(self, user) -> bool:
+        if not getattr(user, "is_authenticated", False):
+            return False
+        return user.is_staff or user.pk == self.user_id
+
+    def can_delete(self, user) -> bool:
+        if not getattr(user, "is_authenticated", False):
+            return False
+        return user.is_staff
 
 
 __all__ = ["User", "UserManager", "UserProfile"]
