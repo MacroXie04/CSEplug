@@ -1,8 +1,12 @@
+// Bootstrap 变量覆盖
 $body-bg: #f8f9fc;
 $primary: #1b6ef3;
 $secondary: #6c757d;
 $font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
+// 使用 @use 替代已弃用的 @import
+// 注意：Bootstrap 5.3.3 仍使用旧的 @import 语法，所以我们需要使用 @import
+// 但会在 Vite 配置中抑制来自 node_modules 的警告
 @import 'bootstrap/scss/bootstrap';
 
 body.dark-mode {

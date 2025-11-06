@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "SASS_SILENCE_DEPRECATIONS=import,global-builtin,color-functions vite",
+    "build": "SASS_SILENCE_DEPRECATIONS=import,global-builtin,color-functions vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -27,7 +27,6 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "sass": "^1.77.4",
     "typescript": "^5.4.5",
-    "vite": "^5.2.9"
+    "vite": "^6.3.5"
   }
 }
-
